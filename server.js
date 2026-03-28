@@ -8,19 +8,16 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 let players = {};
 
 io.on('connection', (socket) => {
-    console.log("New connection:", socket.id);
-
     players[socket.id] = { 
         x: 1000, 
         y: 1000, 
+        angle: 0, // Add angle here
         name: "Guest" 
     };
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
-            // Save the name to server memory
             players[socket.id].name = name || "Guest";
-            console.log(`${socket.id} set name to: ${players[socket.id].name}`);
         }
     });
 
@@ -28,11 +25,11 @@ io.on('connection', (socket) => {
         if (players[socket.id]) {
             players[socket.id].x = data.x;
             players[socket.id].y = data.y;
+            players[socket.id].angle = data.angle; // Receive angle from client
         }
     });
 
     socket.on('disconnect', () => {
-        console.log("Player disconnected:", socket.id);
         delete players[socket.id];
     });
 });
