@@ -6,7 +6,7 @@ let players = {};
 
 io.on('connection', (socket) => {
 
-    players[socket.id] = { x: 1000, y: 1000 };
+    players[socket.id] = { x: 1000, y: 1000, name: "Connecting..." };
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
