@@ -5,22 +5,17 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 let players = {};
 
 io.on('connection', (socket) => {
+    // Initial spawn
     players[socket.id] = { x: 1000, y: 1000 };
-    
-    socket.on('move', (dir) => {
-        if (!players[socket.id]) return;
-        const speed = 10;
-        if (dir === 'up')    players[socket.id].y -= speed;
-        if (dir === 'down')  players[socket.id].y += speed;
-        if (dir === 'left')  players[socket.id].x -= speed;
-        if (dir === 'right') players[socket.id].x += speed;
+
+    socket.on('move', (data) => {
+        if (players[socket.id]) {
+            players[socket.id].x = data.x;
+            players[socket.id].y = data.y;
+        }
     });
 
-    socket.on('disconnect', () => {
-        delete players[socket.id];
-    });
+    socket.on('disconnect', () => { delete players[socket.id]; });
 });
 
-setInterval(() => {
-    io.emit('update', players);
-}, 16);
+setInterval(() => { io.emit('update', players); }, 16);
