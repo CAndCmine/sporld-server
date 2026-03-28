@@ -8,6 +8,12 @@ io.on('connection', (socket) => {
 
     players[socket.id] = { x: 1000, y: 1000 };
 
+    socket.on('join', (name) => {
+        if (players[socket.id]) {
+            players[socket.id].name = name || "Guest" + Math.random();
+        }
+    });
+
     socket.on('move', (data) => {
         if (players[socket.id]) {
             players[socket.id].x = data.x;
