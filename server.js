@@ -5,10 +5,11 @@ const io = require('socket.io')(process.env.PORT || 3000, {
   }
 });
 
-let cursors = {};
+let players = {};
 
 io.on('connection', (socket) => {
-  
+    console.log("A player joined:", socket.id);
+
     players[socket.id] = { x: 400, y: 300, size: 10 };
 
     socket.on('move', (dir) => {
@@ -23,12 +24,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        console.log("A player left:", socket.id);
         delete players[socket.id];
     });
 });
 
 setInterval(() => {
-  io.emit('update', cursors);
+  io.emit('update', players);
 }, 1000 / 60);
 
-console.log("Cursor server is live!");
+console.log("Sporld server is live!");
