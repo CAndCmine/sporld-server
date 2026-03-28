@@ -1,33 +1,21 @@
-const io = require('socket.io')(process.env.PORT || 3000, {
-  cors: {
-    origin: "*", 
-    methods: ["GET", "POST"]
-  }
-});
+const io = require('socket.io')(process.env.PORT || 3000, { cors: { origin: "*" } });
 
 let players = {};
-const SPEED = 7;
-const MAP_SIZE = 2000;
 
 io.on('connection', (socket) => {
-    // Start at map center
-    players[socket.id] = { x: 1000, y: 1000, size: 15 };
+    // Spawn at 1000, 1000
+    players[socket.id] = { x: 1000, y: 1000 };
 
     socket.on('move', (dir) => {
-        const player = players[socket.id];
-        if (!player) return;
-
-        if (dir === 'up' && player.y > 0) player.y -= SPEED;
-        if (dir === 'down' && player.y < MAP_SIZE) player.y += SPEED;
-        if (dir === 'left' && player.x > 0) player.x -= SPEED;
-        if (dir === 'right' && player.x < MAP_SIZE) player.x += SPEED;
+        if (!players[socket.id]) return;
+        const s = 7; // Speed
+        if (dir === 'up')    players[socket.id].y -= s;
+        if (dir === 'down')  players[socket.id].y += s;
+        if (dir === 'left')  players[socket.id].x -= s;
+        if (dir === 'right') players[socket.id].x += s;
     });
 
-    socket.on('disconnect', () => {
-        delete players[socket.id];
-    });
+    socket.on('disconnect', () => delete players[socket.id]);
 });
 
-setInterval(() => {
-    io.emit('update', players);
-}, 1000 / 60);
+setInterval(() => io.emit('update', players), 16); // ~60fps
