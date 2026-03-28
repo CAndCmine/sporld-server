@@ -10,7 +10,8 @@ io.on('connection', (socket) => {
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
-            players[socket.id].name = name || "Guest" + Math.random();
+            players[socket.id].name = name || "Guest"; 
+            console.log(players[socket.id].name + " joined the game!");
         }
     });
 
