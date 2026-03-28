@@ -8,19 +8,23 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 let cursors = {};
 
 io.on('connection', (socket) => {
+  
+    players[socket.id] = { x: 400, y: 300, size: 10 };
 
-  cursors[socket.id] = { x: 0, y: 0 };
+    socket.on('move', (dir) => {
+        const player = players[socket.id];
+        if (!player) return;
 
-  socket.on('move', (pos) => {
-    if (cursors[socket.id]) {
-      cursors[socket.id].x = pos.x;
-      cursors[socket.id].y = pos.y;
-    }
-  });
+        const speed = 5;
+        if (dir === 'up') player.y -= speed;
+        if (dir === 'down') player.y += speed;
+        if (dir === 'left') player.x -= speed;
+        if (dir === 'right') player.x += speed;
+    });
 
-  socket.on('disconnect', () => {
-    delete cursors[socket.id];
-  });
+    socket.on('disconnect', () => {
+        delete players[socket.id];
+    });
 });
 
 setInterval(() => {
