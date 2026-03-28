@@ -5,7 +5,7 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 let players = {};
 
 io.on('connection', (socket) => {
-    // Initial spawn
+
     players[socket.id] = { x: 1000, y: 1000 };
 
     socket.on('move', (data) => {
@@ -15,7 +15,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('disconnect', () => { delete players[socket.id]; });
+    socket.on('disconnect', () => { 
+        delete players[socket.id]; 
+    });
 });
 
-setInterval(() => { io.emit('update', players); }, 16);
+// Send the world state to everyone 60 times per second
+setInterval(() => { 
+    io.emit('update', players); 
+}, 16);
