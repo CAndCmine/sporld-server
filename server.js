@@ -18,7 +18,7 @@ io.on('connection', (socket) => {
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
-            // Save the name provided by the prompt into the server's memory
+            // Save the name to server memory
             players[socket.id].name = name || "Guest";
             console.log(`${socket.id} set name to: ${players[socket.id].name}`);
         }
