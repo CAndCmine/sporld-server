@@ -6,21 +6,24 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 });
 
 let players = {};
+const SPEED = 5;
+const MAP_SIZE = 2000;
 
 io.on('connection', (socket) => {
     console.log("A player joined:", socket.id);
 
+    // Initial spawn point
     players[socket.id] = { x: 400, y: 300, size: 10 };
 
     socket.on('move', (dir) => {
         const player = players[socket.id];
         if (!player) return;
 
-        const speed = 5;
-        if (dir === 'up') player.y -= speed;
-        if (dir === 'down') player.y += speed;
-        if (dir === 'left') player.x -= speed;
-        if (dir === 'right') player.x += speed;
+        // Boundary checks: Only move if within the MAP_SIZE
+        if (dir === 'up' && player.y > 0) player.y -= SPEED;
+        if (dir === 'down' && player.y < MAP_SIZE) player.y += SPEED;
+        if (dir === 'left' && player.x > 0) player.x -= SPEED;
+        if (dir === 'right' && player.x < MAP_SIZE) player.x += SPEED;
     });
 
     socket.on('disconnect', () => {
