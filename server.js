@@ -24,13 +24,14 @@ io.on('connection', (socket) => {
 
     socket.on('fire', (data) => {
         const id = bulletIdCounter++;
+        const offset = 30;
         bullets[id] = {
-            x: data.x,
-            y: data.y,
+            x: data.x + Math.cos(data.angle) * offset,
+            y: data.y + Math.sin(data.angle) * offset,
             angle: data.angle,
             owner: socket.id,
-            speed: 12,
-            life: 80
+            speed: 15,
+            life: 100
         };
     });
 
