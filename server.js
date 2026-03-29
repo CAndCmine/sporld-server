@@ -5,11 +5,17 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 const players = {};
 let bullets = [];
 const MAP_SIZE = 2000;
-const BULLET_SPEED = 15;
-const PLAYER_RADIUS = 25; // Hitbox size
+const BULLET_SPEED = 12;
+const PLAYER_RADIUS = 30;
 
 io.on('connection', (socket) => {
-    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
+    // Initialize player
+    players[socket.id] = { 
+        x: Math.random() * MAP_SIZE, 
+        y: Math.random() * MAP_SIZE, 
+        angle: 0, 
+        name: "Guest" 
+    };
 
     socket.on('join', (name) => {
         if (players[socket.id]) players[socket.id].name = name;
@@ -23,7 +29,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Handle shooting
     socket.on('shoot', () => {
         const p = players[socket.id];
         if (p) {
@@ -32,7 +37,7 @@ io.on('connection', (socket) => {
                 y: p.y,
                 angle: p.angle,
                 ownerId: socket.id,
-                life: 60
+                life: 100 
             });
         }
     });
@@ -42,38 +47,31 @@ io.on('connection', (socket) => {
     });
 });
 
-function respawnPlayer(id) {
-    if (players[id]) {
-        players[id].x = Math.random() * MAP_SIZE;
-        players[id].y = Math.random() * MAP_SIZE;
-    }
-}
-
 setInterval(() => {
-    // Update Bullets
+    // Update bullets and handle collisions
     for (let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i];
         b.x += Math.cos(b.angle) * BULLET_SPEED;
         b.y += Math.sin(b.angle) * BULLET_SPEED;
         b.life--;
 
-        // Delete bullet if going off map
-        if (b.life <= 0 || b.x < 0 || b.x > MAP_SIZE || b.y < 0 || b.y > MAP_SIZE) {
-            bullets.splice(i, 1);
-            continue;
-        }
-
+        let hit = false;
         for (let id in players) {
-            if (id === b.ownerId) continue; // Don't shoot yourself
-            
+            if (id === b.ownerId) continue;
             const p = players[id];
             const dist = Math.hypot(p.x - b.x, p.y - b.y);
             
             if (dist < PLAYER_RADIUS) {
-                respawnPlayer(id);
-                bullets.splice(i, 1);
-                break; 
+                // Respawn player
+                players[id].x = Math.random() * MAP_SIZE;
+                players[id].y = Math.random() * MAP_SIZE;
+                hit = true;
+                break;
             }
+        }
+
+        if (hit || b.life <= 0 || b.x < 0 || b.x > MAP_SIZE || b.y < 0 || b.y > MAP_SIZE) {
+            bullets.splice(i, 1);
         }
     }
 
