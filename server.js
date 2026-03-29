@@ -4,36 +4,77 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server, { cors: { origin: "*" } });
 
 const players = {};
-let bullets = [];
+const bullets = [];
 
 io.on('connection', (socket) => {
-    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest", score: 0 };
-    
-    socket.on('join', name => { if (players[socket.id]) players[socket.id].name = name; });
-    socket.on('move', data => { if (players[socket.id]) Object.assign(players[socket.id], data); });
+    players[socket.id] = { 
+        x: 1000, 
+        y: 1000, 
+        angle: 0, 
+        name: "Guest", 
+        score: 0,
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}`
+    };
+
+    socket.on('join', name => {
+        if (players[socket.id]) players[socket.id].name = name || "Guest";
+    });
+
+    socket.on('move', data => {
+        if (players[socket.id]) Object.assign(players[socket.id], data);
+    });
 
     socket.on('fire', data => {
+        if (!players[socket.id]) return;
+        
         bullets.push({
             x: data.x + Math.cos(data.angle) * 40,
             y: data.y + Math.sin(data.angle) * 40,
             angle: data.angle,
             speed: 18,
-            life: 90
+            life: 80,
+            owner: socket.id   // ← Important!
         });
     });
-    
-    socket.on('disconnect', () => { delete players[socket.id]; });
+
+    socket.on('disconnect', () => {
+        delete players[socket.id];
+    });
 });
 
+// Game loop
 setInterval(() => {
-    for (let id in players) players[id].score += 0.01;
+    // Passive score
+    for (let id in players) {
+        players[id].score += 0.01;
+    }
 
+    // Update bullets + collisions
     for (let i = bullets.length - 1; i >= 0; i--) {
-        let b = bullets[i];
+        const b = bullets[i];
         b.x += Math.cos(b.angle) * b.speed;
         b.y += Math.sin(b.angle) * b.speed;
         b.life--;
-        if (b.life <= 0 || b.x < 0 || b.x > 2000 || b.y < 0 || b.y > 2000) {
+
+        let hit = false;
+
+        for (let id in players) {
+            const p = players[id];
+            const dx = b.x - p.x;
+            const dy = b.y - p.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (dist < 28 && b.owner !== id) { // 28 = hit radius
+                // Hit!
+                if (players[b.owner]) {
+                    players[b.owner].score += 10; // Kill reward
+                }
+                hit = true;
+                break;
+            }
+        }
+
+        if (hit || b.life <= 0 || b.x < 0 || b.x > 2000 || b.y < 0 || b.y > 2000) {
             bullets.splice(i, 1);
         }
     }
@@ -42,3 +83,4 @@ setInterval(() => {
 }, 16);
 
 server.listen(process.env.PORT || 3000);
+console.log("Server running on port", process.env.PORT || 3000);
