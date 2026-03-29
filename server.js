@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
     for (let id in players) {
-        players[id].score += 1;
+        players[id].score += 0.1; 
     }
     io.emit('update', players);
 }, 16);
