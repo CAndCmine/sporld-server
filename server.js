@@ -6,12 +6,10 @@ const io = require('socket.io')(server, { cors: { origin: "*" } });
 const players = {};
 
 io.on('connection', (socket) => {
-    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Connecting..." };
+    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest", score: 0 };
 
     socket.on('join', (name) => {
-        if (players[socket.id]) {
-            players[socket.id].name = name;
-        }
+        if (players[socket.id]) players[socket.id].name = name;
     });
 
     socket.on('move', (data) => {
@@ -28,6 +26,9 @@ io.on('connection', (socket) => {
 });
 
 setInterval(() => {
+    for (let id in players) {
+        players[id].score += 1;
+    }
     io.emit('update', players);
 }, 16);
 
