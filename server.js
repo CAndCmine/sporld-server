@@ -5,6 +5,8 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 const players = {};
 
 io.on('connection', (socket) => {
+    console.log("CONNECTED:", socket.id);
+
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
 
     socket.on('join', (name) => {
@@ -14,6 +16,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('move', (data) => {
+        console.log("RECEIVED:", data);
+
         if (players[socket.id] && data) {
             if (Number.isFinite(data.x)) players[socket.id].x = data.x;
             if (Number.isFinite(data.y)) players[socket.id].y = data.y;
@@ -22,6 +26,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        console.log("DISCONNECTED:", socket.id);
         delete players[socket.id];
     });
 });
