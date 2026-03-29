@@ -3,7 +3,6 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 });
 
 let players = {};
-let bullets = [];
 
 io.on('connection', (socket) => {
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
@@ -13,25 +12,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('move', (data) => {
-        if (players[socket.id]) {
-            players[socket.id].x = data.x;
-            players[socket.id].y = data.y;
-            players[socket.id].angle = data.angle;
-        }
-    });
+        if (!players[socket.id]) return;
 
-    socket.on('shoot', () => {
-        if (players[socket.id]) {
-            bullets.push({
-                id: Math.random(),
-                owner: socket.id,
-                x: players[socket.id].x,
-                y: players[socket.id].y,
-                angle: players[socket.id].angle,
-                speed: 12,
-                life: 60
-            });
-        }
+        players[socket.id].x = Number(data.x);
+        players[socket.id].y = Number(data.y);
+        players[socket.id].angle = Number(data.angle);
     });
 
     socket.on('disconnect', () => {
@@ -40,21 +25,5 @@ io.on('connection', (socket) => {
 });
 
 setInterval(() => {
-    // Update bullet positions
-    for (let i = bullets.length - 1; i >= 0; i--) {
-        bullets[i].x += Math.cos(bullets[i].angle) * bullets[i].speed;
-        bullets[i].y += Math.sin(bullets[i].angle) * bullets[i].speed;
-        bullets[i].life--;
-        
-        // Remove dead bullets
-        if (bullets[i].life <= 0) {
-            bullets.splice(i, 1);
-        }
-    }
-
-    // Send the structured object back to clients
-    io.emit('update', { 
-        players: players, 
-        bullets: bullets 
-    });
+    io.emit('update', JSON.parse(JSON.stringify(players)));
 }, 16);
