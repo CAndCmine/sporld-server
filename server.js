@@ -13,23 +13,23 @@ io.on('connection', (socket) => {
     });
 
     socket.on('move', (data) => {
-        if (!players[socket.id]) return;
-        players[socket.id].x = Number(data.x);
-        players[socket.id].y = Number(data.y);
-        players[socket.id].angle = Number(data.angle);
+        if (players[socket.id]) {
+            players[socket.id].x = data.x;
+            players[socket.id].y = data.y;
+            players[socket.id].angle = data.angle;
+        }
     });
 
     socket.on('shoot', () => {
-        if (!players[socket.id]) return;
-        bullets.push({
-            id: Math.random(),
-            owner: socket.id,
-            x: players[socket.id].x,
-            y: players[socket.id].y,
-            angle: players[socket.id].angle,
-            speed: 10,
-            life: 100
-        });
+        if (players[socket.id]) {
+            bullets.push({
+                x: players[socket.id].x,
+                y: players[socket.id].y,
+                angle: players[socket.id].angle,
+                speed: 12,
+                life: 60
+            });
+        }
     });
 
     socket.on('disconnect', () => {
@@ -39,18 +39,14 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
     for (let i = bullets.length - 1; i >= 0; i--) {
-        let b = bullets[i];
-        b.x += Math.cos(b.angle) * b.speed;
-        b.y += Math.sin(b.angle) * b.speed;
-        b.life--;
-
-        if (b.life <= 0) {
-            bullets.splice(i, 1);
-        }
+        bullets[i].x += Math.cos(bullets[i].angle) * bullets[i].speed;
+        bullets[i].y += Math.sin(bullets[i].angle) * bullets[i].speed;
+        bullets[i].life--;
+        if (bullets[i].life <= 0) bullets.splice(i, 1);
     }
 
     io.emit('update', {
-        players: JSON.parse(JSON.stringify(players)),
+        players: players,
         bullets: bullets
     });
 }, 16);
