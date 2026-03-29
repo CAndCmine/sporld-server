@@ -1,35 +1,29 @@
-const io = require("socket.io")(process.env.PORT || 3000, {
+const io = require('socket.io')(process.env.PORT || 3000, {
     cors: { origin: "*" }
 });
 
-const players = {};
+let players = {};
 
-io.on("connection", socket => {
-    players[socket.id] = {
-        x: 1000,
-        y: 1000,
-        angle: 0,
-        name: "Guest"
-    };
+io.on('connection', (socket) => {
+    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
 
-    socket.on("join", name => {
-        players[socket.id].name = name;
+    socket.on('join', (name) => {
+        if (players[socket.id]) players[socket.id].name = name;
     });
 
-    socket.on("move", data => {
-        const p = players[socket.id];
-        if (!p) return;
-
-        p.x = data.x;
-        p.y = data.y;
-        p.angle = data.angle;
+    socket.on('move', (data) => {
+        if (players[socket.id]) {
+            players[socket.id].x = data.x;
+            players[socket.id].y = data.y;
+            players[socket.id].angle = Number(data.angle);
+        }
     });
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
         delete players[socket.id];
     });
 });
 
 setInterval(() => {
-    io.emit("update", players);
-}, 30);
+    io.emit('update', JSON.parse(JSON.stringify(players)));
+}, 16);
