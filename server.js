@@ -13,9 +13,9 @@ io.on('connection', (socket) => {
 
     socket.on('move', (data) => {
         if (players[socket.id]) {
-            players[socket.id].x = Number(data.x) || 1000;
-            players[socket.id].y = Number(data.y) || 1000;
-            players[socket.id].angle = Number(data.angle) || 0;
+            players[socket.id].x = data.x;
+            players[socket.id].y = data.y;
+            players[socket.id].angle = data.angle;
         }
     });
 
