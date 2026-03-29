@@ -7,11 +7,11 @@ const players = {};
 const bullets = [];
 
 io.on('connection', (socket) => {
-    players[socket.id] = { 
-        x: 1000, 
-        y: 1000, 
-        angle: 0, 
-        name: "Guest", 
+    players[socket.id] = {
+        x: 1000,
+        y: 1000,
+        angle: 0,
+        name: "Guest",
         score: 0,
         color: `#${Math.floor(Math.random()*16777215).toString(16)}`
     };
@@ -26,14 +26,14 @@ io.on('connection', (socket) => {
 
     socket.on('fire', data => {
         if (!players[socket.id]) return;
-        
+       
         bullets.push({
             x: data.x + Math.cos(data.angle) * 40,
             y: data.y + Math.sin(data.angle) * 40,
             angle: data.angle,
             speed: 18,
             life: 80,
-            owner: socket.id   // ← Important!
+            owner: socket.id
         });
     });
 
@@ -42,14 +42,11 @@ io.on('connection', (socket) => {
     });
 });
 
-// Game loop
 setInterval(() => {
-    // Passive score
     for (let id in players) {
         players[id].score += 0.01;
     }
 
-    // Update bullets + collisions
     for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
         b.x += Math.cos(b.angle) * b.speed;
@@ -57,17 +54,14 @@ setInterval(() => {
         b.life--;
 
         let hit = false;
-
         for (let id in players) {
             const p = players[id];
             const dx = b.x - p.x;
             const dy = b.y - p.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-
-            if (dist < 28 && b.owner !== id) { // 28 = hit radius
-                // Hit!
+            if (dist < 28 && b.owner !== id) {
                 if (players[b.owner]) {
-                    players[b.owner].score += 10; // Kill reward
+                    players[b.owner].score += 10;
                 }
                 hit = true;
                 break;
