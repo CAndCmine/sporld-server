@@ -10,26 +10,18 @@ let bulletId = 0;
 io.on('connection', (socket) => {
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest", score: 0 };
     
-    socket.on('join', name => { 
-        if (players[socket.id]) players[socket.id].name = name; 
-    });
-    
-    socket.on('move', data => { 
-        if (players[socket.id]) {
-            players[socket.id].x = data.x;
-            players[socket.id].y = data.y;
-            players[socket.id].angle = data.angle;
-        } 
-    });
+    socket.on('join', name => { if (players[socket.id]) players[socket.id].name = name; });
+    socket.on('move', data => { if (players[socket.id]) Object.assign(players[socket.id], data); });
 
     socket.on('fire', data => {
         const id = bulletId++;
+        const offset = 25;
         bullets[id] = {
-            x: data.x,
-            y: data.y,
+            x: data.x + Math.cos(data.angle) * offset,
+            y: data.y + Math.sin(data.angle) * offset,
             angle: data.angle,
             speed: 15,
-            life: 100,
+            life: 80,
             owner: socket.id
         };
     });
@@ -45,9 +37,7 @@ setInterval(() => {
         b.x += Math.cos(b.angle) * b.speed;
         b.y += Math.sin(b.angle) * b.speed;
         b.life--;
-        if (b.life <= 0 || b.x < 0 || b.x > 2000 || b.y < 0 || b.y > 2000) {
-            delete bullets[id];
-        }
+        if (b.life <= 0) delete bullets[id];
     }
 
     io.emit('update', { players, bullets });
