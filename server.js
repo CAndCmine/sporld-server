@@ -5,24 +5,7 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 const players = {};
 
 io.on('connection', (socket) => {
-    console.log("CONNECTED:", socket.id);
-
-    players[socket.id] = {
-        x: 1000,
-        y: 1000,
-        angle: 0,
-        name: "Guest"
-    };
-
-    socket.on('move', (data) => {
-        console.log("RECEIVED MOVE:", socket.id, data);
-
-        if (!players[socket.id]) return;
-
-        if (typeof data.x === "number") players[socket.id].x = data.x;
-        if (typeof data.y === "number") players[socket.id].y = data.y;
-        if (typeof data.angle === "number") players[socket.id].angle = data.angle;
-    });
+    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
@@ -30,8 +13,15 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('move', (data) => {
+        if (!players[socket.id]) return;
+
+        if (typeof data.x === "number") players[socket.id].x = data.x;
+        if (typeof data.y === "number") players[socket.id].y = data.y;
+        if (typeof data.angle === "number") players[socket.id].angle = data.angle;
+    });
+
     socket.on('disconnect', () => {
-        console.log("DISCONNECTED:", socket.id);
         delete players[socket.id];
     });
 });
