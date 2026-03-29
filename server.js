@@ -14,15 +14,14 @@ io.on('connection', (socket) => {
     socket.on('move', data => { if (players[socket.id]) Object.assign(players[socket.id], data); });
 
     socket.on('fire', data => {
-        const id = bulletId++;
-        const offset = 25;
+        const id = `${socket.id}_${bulletId++}`;
+        const offset = 30;
         bullets[id] = {
             x: data.x + Math.cos(data.angle) * offset,
             y: data.y + Math.sin(data.angle) * offset,
             angle: data.angle,
-            speed: 15,
-            life: 80,
-            owner: socket.id
+            speed: 18,
+            life: 100
         };
     });
     
@@ -37,7 +36,9 @@ setInterval(() => {
         b.x += Math.cos(b.angle) * b.speed;
         b.y += Math.sin(b.angle) * b.speed;
         b.life--;
-        if (b.life <= 0) delete bullets[id];
+        if (b.life <= 0 || b.x < 0 || b.x > 2000 || b.y < 0 || b.y > 2000) {
+            delete bullets[id];
+        }
     }
 
     io.emit('update', { players, bullets });
