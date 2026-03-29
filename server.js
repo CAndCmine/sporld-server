@@ -6,7 +6,7 @@ const io = require('socket.io')(server, { cors: { origin: "*" } });
 const players = {};
 
 io.on('connection', (socket) => {
-    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
+    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Connecting..." };
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
