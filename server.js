@@ -1,19 +1,13 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
     cors: { origin: "*" }
 });
 
 const players = {};
 
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
-    
-    // Initial data
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
 
     socket.on('join', (name) => {
@@ -30,16 +24,12 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         delete players[socket.id];
-        console.log('User disconnected:', socket.id);
     });
 });
 
-// Update loop (60 times per second)
 setInterval(() => {
     io.emit('update', players);
 }, 16);
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+server.listen(PORT);
