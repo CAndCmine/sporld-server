@@ -5,6 +5,7 @@ const io = require('socket.io')(process.env.PORT || 3000, {
 let players = {};
 
 io.on('connection', (socket) => {
+    // Initialize with angle 0
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
 
     socket.on('join', (name) => {
@@ -15,7 +16,7 @@ io.on('connection', (socket) => {
         if (players[socket.id]) {
             players[socket.id].x = data.x;
             players[socket.id].y = data.y;
-            players[socket.id].angle = data.angle;
+            players[socket.id].angle = data.angle; // Updates server state
         }
     });
 
@@ -24,6 +25,7 @@ io.on('connection', (socket) => {
     });
 });
 
+// Broadcast the entire state (including angles) to everyone
 setInterval(() => {
     io.emit('update', players);
 }, 16);
