@@ -30,7 +30,7 @@ io.on('connection', (socket) => {
             angle: data.angle,
             owner: socket.id,
             speed: 12,
-            life: 60
+            life: 80
         };
     });
 
@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
     for (let id in players) {
-        players[id].score += 0.1;
+        players[id].score += 0.01;
     }
 
     for (let id in bullets) {
