@@ -7,21 +7,26 @@ const players = {};
 io.on('connection', (socket) => {
     console.log("CONNECTED:", socket.id);
 
-    players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
+    players[socket.id] = {
+        x: 1000,
+        y: 1000,
+        angle: 0,
+        name: "Guest"
+    };
+
+    socket.on('move', (data) => {
+        console.log("RECEIVED MOVE:", socket.id, data);
+
+        if (!players[socket.id]) return;
+
+        if (typeof data.x === "number") players[socket.id].x = data.x;
+        if (typeof data.y === "number") players[socket.id].y = data.y;
+        if (typeof data.angle === "number") players[socket.id].angle = data.angle;
+    });
 
     socket.on('join', (name) => {
         if (players[socket.id]) {
-            players[socket.id].name = typeof name === "string" ? name : "Guest";
-        }
-    });
-
-    socket.on('move', (data) => {
-        console.log("RECEIVED:", data);
-
-        if (players[socket.id] && data) {
-            if (Number.isFinite(data.x)) players[socket.id].x = data.x;
-            if (Number.isFinite(data.y)) players[socket.id].y = data.y;
-            if (Number.isFinite(data.angle)) players[socket.id].angle = data.angle;
+            players[socket.id].name = name || "Guest";
         }
     });
 
