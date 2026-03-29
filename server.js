@@ -1,8 +1,18 @@
-const io = require('socket.io')(process.env.PORT || 3000, {
-    cors: { origin: "*" }
-});
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
 let players = {};
+
+// This serves your index.html automatically
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 io.on('connection', (socket) => {
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
@@ -12,10 +22,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('move', (data) => {
-        if (!players[socket.id]) return;
-        players[socket.id].x = isNaN(data.x) ? players[socket.id].x : Number(data.x);
-        players[socket.id].y = isNaN(data.y) ? players[socket.id].y : Number(data.y);
-        players[socket.id].angle = isNaN(data.angle) ? players[socket.id].angle : Number(data.angle);
+        if (players[socket.id]) {
+            players[socket.id].x = Number(data.x);
+            players[socket.id].y = Number(data.y);
+            players[socket.id].angle = Number(data.angle);
+        }
     });
 
     socket.on('disconnect', () => {
@@ -25,4 +36,9 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
     io.emit('update', players);
-}, 16);
+}, 15);
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
