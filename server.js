@@ -8,17 +8,15 @@ io.on('connection', (socket) => {
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest" };
 
     socket.on('join', (name) => {
-        if (players[socket.id]) {
-            players[socket.id].name = name || "Guest";
-        }
+        if (players[socket.id]) players[socket.id].name = name;
     });
 
     socket.on('move', (data) => {
-        if (!players[socket.id]) return;
-
-        if (typeof data.x === "number") players[socket.id].x = data.x;
-        if (typeof data.y === "number") players[socket.id].y = data.y;
-        if (typeof data.angle === "number") players[socket.id].angle = data.angle;
+        if (players[socket.id]) {
+            players[socket.id].x = data.x;
+            players[socket.id].y = data.y;
+            players[socket.id].angle = data.angle;
+        }
     });
 
     socket.on('disconnect', () => {
