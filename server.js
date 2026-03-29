@@ -15,7 +15,7 @@ io.on('connection', (socket) => {
         if (players[socket.id]) {
             players[socket.id].x = data.x;
             players[socket.id].y = data.y;
-            players[socket.id].angle = data.angle;
+            players[socket.id].angle = typeof data.angle === 'number' ? data.angle : 0;
         }
     });
 
@@ -25,5 +25,5 @@ io.on('connection', (socket) => {
 });
 
 setInterval(() => {
-    io.emit('update', players);
+    io.emit('update', JSON.parse(JSON.stringify(players)));
 }, 16);
