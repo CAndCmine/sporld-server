@@ -23,6 +23,8 @@ io.on('connection', (socket) => {
     socket.on('shoot', () => {
         if (players[socket.id]) {
             bullets.push({
+                id: Math.random(),
+                owner: socket.id,
                 x: players[socket.id].x,
                 y: players[socket.id].y,
                 angle: players[socket.id].angle,
@@ -38,11 +40,21 @@ io.on('connection', (socket) => {
 });
 
 setInterval(() => {
+    // Update bullet positions
     for (let i = bullets.length - 1; i >= 0; i--) {
         bullets[i].x += Math.cos(bullets[i].angle) * bullets[i].speed;
         bullets[i].y += Math.sin(bullets[i].angle) * bullets[i].speed;
         bullets[i].life--;
-        if (bullets[i].life <= 0) bullets.splice(i, 1);
+        
+        // Remove dead bullets
+        if (bullets[i].life <= 0) {
+            bullets.splice(i, 1);
+        }
     }
-    io.emit('update', { players, bullets });
+
+    // Send the structured object back to clients
+    io.emit('update', { 
+        players: players, 
+        bullets: bullets 
+    });
 }, 16);
