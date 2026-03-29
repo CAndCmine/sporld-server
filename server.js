@@ -13,9 +13,10 @@ io.on('connection', (socket) => {
 
     socket.on('move', (data) => {
         if (players[socket.id]) {
-            players[socket.id].x = Number(data.x);
-            players[socket.id].y = Number(data.y);
-            players[socket.id].angle = Number(data.angle);
+            
+            players[socket.id].x = data.x;
+            players[socket.id].y = data.y;
+            players[socket.id].angle = data.angle; 
         }
     });
 
@@ -24,6 +25,7 @@ io.on('connection', (socket) => {
     });
 });
 
+// 3. Constant broadcast
 setInterval(() => {
     io.emit('update', players);
-}, 15);
+}, 16);
