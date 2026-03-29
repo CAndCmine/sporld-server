@@ -44,9 +44,5 @@ setInterval(() => {
         bullets[i].life--;
         if (bullets[i].life <= 0) bullets.splice(i, 1);
     }
-
-    io.emit('update', {
-        players: players,
-        bullets: bullets
-    });
+    io.emit('update', { players, bullets });
 }, 16);
