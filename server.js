@@ -4,8 +4,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server, { cors: { origin: "*" } });
 
 const players = {};
-const bullets = {};
-let bulletId = 0;
+let bullets = [];
 
 io.on('connection', (socket) => {
     players[socket.id] = { x: 1000, y: 1000, angle: 0, name: "Guest", score: 0 };
@@ -14,15 +13,13 @@ io.on('connection', (socket) => {
     socket.on('move', data => { if (players[socket.id]) Object.assign(players[socket.id], data); });
 
     socket.on('fire', data => {
-        const id = `${socket.id}_${bulletId++}`;
-        const offset = 30;
-        bullets[id] = {
-            x: data.x + Math.cos(data.angle) * offset,
-            y: data.y + Math.sin(data.angle) * offset,
+        bullets.push({
+            x: data.x + Math.cos(data.angle) * 35,
+            y: data.y + Math.sin(data.angle) * 35,
             angle: data.angle,
-            speed: 18,
+            speed: 20,
             life: 100
-        };
+        });
     });
     
     socket.on('disconnect', () => { delete players[socket.id]; });
@@ -31,13 +28,13 @@ io.on('connection', (socket) => {
 setInterval(() => {
     for (let id in players) players[id].score += 0.01;
 
-    for (let id in bullets) {
-        const b = bullets[id];
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i];
         b.x += Math.cos(b.angle) * b.speed;
         b.y += Math.sin(b.angle) * b.speed;
         b.life--;
         if (b.life <= 0 || b.x < 0 || b.x > 2000 || b.y < 0 || b.y > 2000) {
-            delete bullets[id];
+            bullets.splice(i, 1);
         }
     }
 
