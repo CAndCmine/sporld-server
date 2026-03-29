@@ -14,11 +14,11 @@ io.on('connection', (socket) => {
 
     socket.on('fire', data => {
         bullets.push({
-            x: data.x + Math.cos(data.angle) * 35,
-            y: data.y + Math.sin(data.angle) * 35,
+            x: data.x + Math.cos(data.angle) * 40,
+            y: data.y + Math.sin(data.angle) * 40,
             angle: data.angle,
-            speed: 20,
-            life: 100
+            speed: 18,
+            life: 90
         });
     });
     
