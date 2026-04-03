@@ -1,20 +1,20 @@
 const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const ui = document.getElementById('ui-overlay');
-    const statusText = document.getElementById('status');
-    const nickInput = document.getElementById('nickInput');
-    const joyCheck = document.getElementById('joyCheck');
-    const joyContainer = document.getElementById('joystick-container');
-    const joyKnob = document.getElementById('joystick-knob');
-    const lbElement = document.getElementById('leaderboard');
-    const SERVER_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? 'http://localhost:3000' : 'https://sporld-server.onrender.com';
-    const socket = io(SERVER_URL);
-    let gameStarted = false;
-    let players = {};
-    let myPos = {
-      x: 1000,
-      y: 1000,
-      angle: 0,
+const ctx = canvas.getContext('2d');
+const ui = document.getElementById('ui-overlay');
+const statusText = document.getElementById('status');
+const nickInput = document.getElementById('nickInput');
+const joyCheck = document.getElementById('joyCheck');
+const joyContainer = document.getElementById('joystick-container');
+const joyKnob = document.getElementById('joystick-knob');
+const lbElement = document.getElementById('leaderboard');
+const SERVER_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? 'http://localhost:3000' : 'https://sporld-server.onrender.com';
+const socket = io(SERVER_URL);
+let gameStarted = false;
+let players = {};
+let myPos = {
+  x: 1000,
+  y: 1000,
+  angle: 0,
       name: ""
     };
     let mousePos = {
